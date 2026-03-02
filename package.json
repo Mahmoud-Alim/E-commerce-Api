@@ -5,6 +5,7 @@
   "main": "cheat sheet node.js",
   "dependencies": {
     "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cross-env": "^10.1.0",
     "csrf-csrf": "^4.0.3",

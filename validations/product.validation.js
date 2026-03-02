@@ -48,5 +48,5 @@ export const productQuerySchema = z.object({
       .regex(/^\d+$/, "Limit must be a number")
       .transform(Number)
       .default("10")
-  })
+  }).passthrough()
 });

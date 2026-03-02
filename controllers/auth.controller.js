@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "express-async-handler";
 
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {

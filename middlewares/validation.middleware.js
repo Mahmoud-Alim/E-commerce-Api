@@ -12,9 +12,9 @@ export const validate = (schema) => (req, res, next) => {
         });
     }
 
-    req.body = result.data.body;
-    req.params = result.data.params;
-    req.query = result.data.query;
+    if (result.data.body !== undefined) req.body = result.data.body;
+    if (result.data.params !== undefined) req.params = result.data.params;
+    if (result.data.query !== undefined) req.query = result.data.query;
 
     next();
 };

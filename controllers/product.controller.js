@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 export const getAllProducts = asyncHandler(async (req, res) => {
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);

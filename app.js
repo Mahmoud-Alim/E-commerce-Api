@@ -77,15 +77,16 @@ app.all("*", (req, res) => {
 app.use(globalErrorHandler);
 
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("Database Connected & Secured"))
+    .then(() => {
+        console.log("Database Connected & Secured");
+        const server = app.listen(PORT, () => {
+            console.log(`The server is running on http://localhost:${PORT}`);
+        });
+
+        process.on("unhandledRejection", (err) => {
+            server.close(() => process.exit(1));
+        });
+    })
     .catch(err => {
         process.exit(1);
     });
-
-const server = app.listen(PORT, () => {
-    console.log(`The server is running on http://localhost:${PORT}`);
-});
-
-process.on("unhandledRejection", (err) => {
-    server.close(() => process.exit(1));
-});
