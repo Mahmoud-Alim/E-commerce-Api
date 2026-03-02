@@ -1,5 +1,5 @@
 import Product from "../models/product.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "express-async-handler";
 import mongoose from "mongoose";
 
 export const getAllProducts = asyncHandler(async (req, res) => {
@@ -37,7 +37,6 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     query = query.skip(skip).limit(limit);
 
     const products = await query;
-
     const total = await Product.countDocuments(filter);
 
     res.status(200).json({
@@ -68,7 +67,6 @@ export const getProductById = asyncHandler(async (req, res) => {
 
 export const createProduct = asyncHandler(async (req, res) => {
     const product = await Product.create(req.body);
-
     res.status(201).json({ success: true, data: product });
 });
 
@@ -89,7 +87,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
     });
 
     await product.save();
-
     res.status(200).json({ success: true, data: product });
 });
 

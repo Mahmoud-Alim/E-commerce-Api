@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
 
 const userSchema = new mongoose.Schema({
     name: { 
@@ -26,13 +26,30 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-userSchema.pre("save", async function () {
-    if (!this.isModified("password")) return;
-    this.password = await bcrypt.hash(this.password, 12);
+const argon2Options = {
+    type: argon2.argon2id, 
+    memoryCost: 2 ** 16,   
+    timeCost: 3,           
+    parallelism: 1         
+};
+
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+
+    try {
+        this.password = await argon2.hash(this.password, argon2Options);
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+    try {
+        return await argon2.verify(this.password, candidatePassword);
+    } catch (err) {
+        return false;
+    }
 };
 
 userSchema.methods.toJSON = function () {
