@@ -1,64 +1,19 @@
-import { z } from "zod";
+const { z } = require('zod');
 
-export const createProductSchema = z.object({
-  body: z.object({
-    name: z.string()
-      .min(3, { message: 'Product name must be at least 3 characters long' })
-      .max(20)
-      .min(1, { message: 'Product name is required' }),
-    description: z.string()
-      .max(200, { message: 'Description must be at most 200 characters long' })
-      .trim()
-      .optional(),
-    price: z.number({
-        required_error: 'Price is required',
-        invalid_type_error: 'Price must be a number'
-      })
-      .min(0, { message: 'Price must be greater than 0' }),
-    category: z.enum(["electronics", "clothing", "home", "beauty", "sports"], {
-      errorMap: () => ({ message: "Invalid category" })
-    }),
-    brand: z.string()
-      .min(2, { message: 'Brand must be at least 2 characters' })
-      .max(25, { message: 'Brand must be less than 25 characters' })
-      .regex(/^[a-zA-Z0-9\s]+$/, { message: 'Brand must contain letters and numbers only' }),
-    inStock: z.boolean().default(true)
-  })
+const createProductSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters').max(100),
+  price: z.number().positive('Price must be positive'),
+  description: z.string().max(500).optional(),
+  category: z.enum(['electronics', 'clothing', 'books', 'other']),
+  stock: z.number().int().min(0).default(0)
 });
 
-export const updateProductSchema = z.object({
-  params: z.object({
-    id: z.string().length(24, { message: "Invalid Product ID format" })
-  }),
-  body: z.object({
-    name: z.string().min(3).max(20).optional(),
-    description: z.string().max(200).trim().optional(),
-    price: z.number().min(0).optional(),
-    category: z.enum(["electronics", "clothing", "home", "beauty", "sports"]).optional(),
-    brand: z.string()
-      .min(2).max(25)
-      .regex(/^[a-zA-Z0-9\s]+$/)
-      .optional(),
-    inStock: z.boolean().optional()
-  })
+const updateProductSchema = z.object({
+  name: z.string().min(3).max(100).optional(),
+  price: z.number().positive().optional(),
+  description: z.string().max(500).optional(),
+  category: z.enum(['electronics', 'clothing', 'books', 'other']).optional(),
+  stock: z.number().int().min(0).optional()
 });
 
-export const productIdSchema = z.object({
-  params: z.object({
-    id: z.string().length(24, { message: "Invalid Product ID format" })
-  })
-});
-
-export const productQuerySchema = z.object({
-  query: z.object({
-    search: z.string().optional(),
-    page: z.string()
-      .regex(/^\d+$/, "Page must be a number")
-      .transform(Number)
-      .default("1"),
-    limit: z.string()
-      .regex(/^\d+$/, "Limit must be a number")
-      .transform(Number)
-      .default("10")
-  }).passthrough()
-});
+module.exports = { createProductSchema, updateProductSchema };

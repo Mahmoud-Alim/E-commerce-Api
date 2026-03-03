@@ -1,11 +1,14 @@
 {
-  "name": "node",
+  "name": "test-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "cheat sheet node.js",
+  "description": "Express API with MongoDB",
+  "main": "app.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node app.js",
+    "dev": "cross-env NODE_ENV=development nodemon app.js"
+  },
   "dependencies": {
     "argon2": "^0.44.0",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
@@ -20,13 +23,5 @@
     "mongoose": "^9.0.2",
     "morgan": "^1.10.1",
     "zod": "^4.3.6"
-  },
-  "scripts": {
-    "start:dev": "cross-env NODE_ENV=development nodemon ./Emp/app.js",
-    "start:prod": "cross-env NODE_ENV=production node ./Emp/app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module"
+  }
 }

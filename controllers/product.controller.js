@@ -1,107 +1,102 @@
-import Product from "../models/product.model.js";
-import asyncHandler from "express-async-handler";
-import mongoose from "mongoose";
+const asyncHandler = require('express-async-handler');
+const Product = require('../models/product.model');
 
-export const getAllProducts = asyncHandler(async (req, res) => {
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
-    excludedFields.forEach(field => delete queryObj[field]);
+const createProduct = asyncHandler(async (req, res) => {
+  const { name, price, description, category, stock } = req.body;
 
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-    const filter = JSON.parse(queryStr);
+  const product = await Product.create({
+    name,
+    price,
+    description,
+    category,
+    stock,
+    user: req.user.id
+  });
 
-    if (req.query.search) {
-        filter.name = { $regex: req.query.search, $options: 'i' };
-    }
-
-    let query = Product.find(filter);
-
-    if (req.query.sort) {
-        const sortBy = req.query.sort.split(',').join(' ');
-        query = query.sort(sortBy);
-    } else {
-        query = query.sort('-createdAt');
-    }
-
-    if (req.query.fields) {
-        const fields = req.query.fields.split(',').join(' ');
-        query = query.select(fields);
-    } else {
-        query = query.select('-__v');
-    }
-
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-
-    const products = await query;
-    const total = await Product.countDocuments(filter);
-
-    res.status(200).json({
-        success: true,
-        count: products.length,
-        total,
-        page,
-        pages: Math.ceil(total / limit),
-        data: products
-    });
+  res.status(201).json({
+    success: true,
+    data: product
+  });
 });
 
-export const getProductById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+const getProducts = asyncHandler(async (req, res) => {
+  const { category, minPrice, maxPrice } = req.query;
+  let filter = {};
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ success: false, message: "Invalid product ID" });
-    }
+  if (category) filter.category = category;
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
 
-    const product = await Product.findById(id);
-
-    if (!product) {
-        return res.status(404).json({ success: false, message: "Product not found" });
-    }
-
-    res.status(200).json({ success: true, data: product });
+  const products = await Product.find(filter).populate('user', 'name email');
+  res.status(200).json({
+    success: true,
+    count: products.length,
+    data: products
+  });
 });
 
-export const createProduct = asyncHandler(async (req, res) => {
-    const product = await Product.create(req.body);
-    res.status(201).json({ success: true, data: product });
+const getProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id).populate('user', 'name email');
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+  res.status(200).json({
+    success: true,
+    data: product
+  });
 });
 
-export const updateProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+const updateProduct = asyncHandler(async (req, res) => {
+  let product = await Product.findById(req.params.id);
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ success: false, message: "Invalid product ID" });
-    }
+  if (product.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this product');
+  }
 
-    const product = await Product.findById(id);
-    if (!product) {
-        return res.status(404).json({ success: false, message: "Product not found" });
-    }
+  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
 
-    Object.keys(req.body).forEach(key => {
-        product[key] = req.body[key];
-    });
-
-    await product.save();
-    res.status(200).json({ success: true, data: product });
+  res.status(200).json({
+    success: true,
+    data: product
+  });
 });
 
-export const deleteProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+const deleteProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ success: false, message: "Invalid product ID" });
-    }
+  if (product.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to delete this product');
+  }
 
-    const product = await Product.findByIdAndDelete(id);
+  await product.deleteOne();
 
-    if (!product) {
-        return res.status(404).json({ success: false, message: "Product not found" });
-    }
-
-    res.status(200).json({ success: true, message: "Product deleted successfully" });
+  res.status(200).json({
+    success: true,
+    message: 'Product deleted successfully'
+  });
 });
+
+module.exports = {
+  createProduct,
+  getProducts,
+  getProduct,
+  updateProduct,
+  deleteProduct
+};

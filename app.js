@@ -1,60 +1,51 @@
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import helmet from "helmet";
-import cors from "cors";
-import morgan from "morgan";
-import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
-import hpp from "hpp";
-import { xss } from "express-xss-sanitizer";
-import cookieParser from "cookie-parser";
-import { globalErrorHandler } from "./middlewares/error.middleware.js";
-import authRouter from "./routes/auth.route.js";
-import productRouter from "./routes/product.route.js";
-
-dotenv.config();
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const morgan = require('morgan');
+const helmet = require('helmet');
+const cors = require('cors');
+const hpp = require('hpp');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const { xss } = require('express-xss-sanitizer');
+const authRoutes = require('./routes/auth.route');
+const productRoutes = require('./routes/product.route');
+const errorMiddleware = require('./middlewares/error.middleware');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.use(helmet());
-app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true
-}));
-app.use(morgan("dev"));
-app.use(cookieParser(process.env.COOKIE_SECRET || "cookie-secret"));
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cors());
+app.use(hpp());
 app.use(mongoSanitize());
 app.use(xss());
-app.use(hpp({ whitelist: ['price','category','brand','sort','fields','page','limit'] }));
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: { success: false, message: "Too many requests, please try again later" }
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  message: 'Too many requests from this IP, please try again later.'
 });
-app.use("/api", limiter);
+app.use('/api', limiter);
 
-app.use("/api/auth", authRouter);
-app.use("/api/products", productRouter);
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-app.all("*", (req, res) => {
-    res.status(404).json({ success: false, message: "This route does not exist" });
-});
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined', { stream: { write: message => require('fs').appendFileSync('error.log', message) } }));
+}
 
-app.use(globalErrorHandler);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
-mongoose.connect(MONGO_URI)
-    .then(() => {
-        console.log("Database Connected & Secured");
-        app.listen(PORT, () => {
-            console.log(`The server is running on http://localhost:${PORT}`);
-        });
-    })
-    .catch(err => {
-        process.exit(1);
-    });
+app.get('/health', (req, res) => res.status(200).json({ status: 'OK' }));
+
+app.use(errorMiddleware);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

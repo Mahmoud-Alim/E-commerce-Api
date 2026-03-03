@@ -1,54 +1,24 @@
-import express from "express";
-import {
-    getAllProducts,
-    getProductById,
-    createProduct,
-    updateProduct,
-    deleteProduct
-} from "../controllers/product.controller.js";
-
-import { validate } from "../middlewares/validation.middleware.js";
-import { 
-    createProductSchema, 
-    productIdSchema, 
-    productQuerySchema,
-    updateProductSchema 
-} from "../validations/product.validation.js";
-
-import { protect, restrictTo } from "../middlewares/auth.middleware.js";
+const express = require('express');
+const {
+  createProduct,
+  getProducts,
+  getProduct,
+  updateProduct,
+  deleteProduct
+} = require('../controllers/product.controller');
+const { protect, admin } = require('../middlewares/auth.middleware');
+const validate = require('../middlewares/validation.middleware');
+const { createProductSchema, updateProductSchema } = require('../validations/product.validation');
 
 const router = express.Router();
 
-router
-    .route("/")
-    .get(
-        validate(productQuerySchema), 
-        getAllProducts
-    )
-    .post(
-        protect,
-        restrictTo("admin"),
-        validate(createProductSchema), 
-        createProduct
-    );
+router.route('/')
+  .get(getProducts)
+  .post(protect, validate(createProductSchema), createProduct);
 
-router
-    .route("/:id")
-    .get(
-        validate(productIdSchema), 
-        getProductById
-    )
-    .put(
-        protect,
-        restrictTo("admin"),
-        validate(updateProductSchema), 
-        updateProduct
-    )
-    .delete(
-        protect,
-        restrictTo("admin"),
-        validate(productIdSchema), 
-        deleteProduct
-    );
+router.route('/:id')
+  .get(getProduct)
+  .put(protect, validate(updateProductSchema), updateProduct)
+  .delete(protect, deleteProduct);
 
-export default router;
+module.exports = router;
