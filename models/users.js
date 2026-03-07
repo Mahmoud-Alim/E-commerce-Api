@@ -3,55 +3,62 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    lowercase: true,  // Normalize to lowercase on save
+    trim: true,
   },
   passwordHash: {
     type: String,
-    required: true
+    required: true,
   },
   street: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   apartment: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   city: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   zip: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   country: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   phone: {
     type: String,
-    default: ''
+    default: '',
+    trim: true,
   },
   isAdmin: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 userSchema.virtual('id').get(function () {
-    return this._id.toHexString();
+  return this._id.toHexString();
 });
 
-userSchema.set('toJSON', {
-    virtuals: true,
-});
+userSchema.set('toJSON', { virtuals: true });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;
