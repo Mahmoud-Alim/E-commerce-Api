@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * User mongoose model.
+ * Represents a registered user in the e-commerce system.
+ */
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -10,7 +14,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true,  // Normalize to lowercase on save
+    lowercase: true,
     trim: true,
   },
   passwordHash: {

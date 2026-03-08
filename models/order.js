@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * Order mongoose model.
+ * Represents a customer order in the e-commerce system.
+ */
 const orderSchema = new mongoose.Schema({
   orderItems: [{
     type: mongoose.Schema.Types.ObjectId,

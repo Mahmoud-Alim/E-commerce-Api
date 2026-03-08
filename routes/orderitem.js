@@ -4,7 +4,6 @@ import { requireAdmin } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
-// --- Admin-only routes ---
 router.get("/", requireAdmin, getOrderItems);
 router.post("/", requireAdmin, createOrderItem);
 

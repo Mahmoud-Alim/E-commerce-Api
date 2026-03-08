@@ -10,7 +10,6 @@ const FILE_TYPE_MAP = {
 
 const UPLOAD_DIR = "public/uploads";
 
-// Ensure upload directory exists
 const ensureUploadDir = async () => {
   try {
     await fs.access(UPLOAD_DIR);
@@ -51,7 +50,7 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({ 
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
+  limits: { fileSize: 2 * 1024 * 1024 }
 });
 
 export const deleteFiles = async (files) => {

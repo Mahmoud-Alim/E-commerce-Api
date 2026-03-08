@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 import AppError from "../utils/AppError.js";
 import { deleteFiles } from "../middlewares/uploadMiddleware.js";
 
-// --- Read ---
-
 export const getAllProducts = async (categoryId) => {
   const filter = {};
   if (categoryId) {
@@ -39,8 +37,6 @@ export const getProductById = async (id) => {
   if (!product) throw new AppError("Product not found", 404);
   return product;
 };
-
-// --- Write ---
 
 export const createProduct = async (data, files) => {
   if (!data.name || !data.price || !data.category) {
@@ -101,7 +97,6 @@ export const deleteProduct = async (id) => {
   const product = await Product.findByIdAndDelete(id);
   if (!product) throw new AppError("Product not found", 404);
 
-  // Clean up stored image files from disk
   const filesToDelete = [product.image, ...(product.images || [])]
     .filter(Boolean)
     .map((p) => ({ path: p.startsWith("/") ? p.slice(1) : p }));

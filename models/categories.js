@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * Category mongoose model.
+ * Represents a product category in the e-commerce catalog.
+ */
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,

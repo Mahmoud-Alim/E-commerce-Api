@@ -10,16 +10,13 @@ function authJwt() {
   return expressjwt({
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
-    requestProperty: "auth", // decoded payload → req.auth
+    requestProperty: "auth",
   }).unless({
     path: [
-      // Auth endpoints — no token required
       "/api/users/login",
       "/api/users/register",
-      // Public read access for products and categories
       { url: /\/api\/products(.*)/, methods: ["GET", "OPTIONS"] },
       { url: /\/api\/categories(.*)/, methods: ["GET", "OPTIONS"] },
-      // Health check
       "/health",
     ],
   });

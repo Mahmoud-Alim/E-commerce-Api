@@ -16,13 +16,11 @@ import { productSchema, updateProductSchema } from "../validations/productValida
 
 const router = express.Router();
 
-// --- Public read routes ---
 router.get("/", getProducts);
 router.get("/get/count", getProductCount);
 router.get("/get/featured/:count?", getFeaturedProducts);
 router.get("/:id", validateProductId, getProductById);
 
-// --- Admin-only write routes ---
 router.post(
   "/",
   requireAdmin,

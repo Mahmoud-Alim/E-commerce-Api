@@ -1,5 +1,5 @@
 /**
- * Admin-only route guard.
+ * Admin-only route guard middleware.
  * Must be placed AFTER authJwt() in the middleware chain.
  * Reads the decoded JWT payload from req.auth (set by express-jwt).
  */

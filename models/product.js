@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * Product mongoose model.
+ * Represents a product in the e-commerce catalog.
+ */
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,12 +19,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  // Primary thumbnail — single string
   image: {
     type: String,
     default: '',
   },
-  // Gallery images
   images: [{
     type: String,
   }],

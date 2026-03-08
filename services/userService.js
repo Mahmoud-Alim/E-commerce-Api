@@ -3,8 +3,6 @@ import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/AppError.js";
 
-// --- Read ---
-
 export const getAllUsers = async () => {
   return User.find().select("-passwordHash");
 };
@@ -19,15 +17,12 @@ export const getUserCount = async () => {
   return User.countDocuments();
 };
 
-// --- Auth ---
-
 export const loginUser = async (email, password) => {
   if (!email || !password) {
     throw new AppError("Email and password are required", 400);
   }
 
   const user = await User.findOne({ email: email.toLowerCase() }).select("+passwordHash");
-  // Use a generic message to prevent user enumeration attacks
   if (!user) throw new AppError("Invalid email or password", 401);
 
   const isValid = await argon2.verify(user.passwordHash, password);
@@ -39,7 +34,6 @@ export const loginUser = async (email, password) => {
     { expiresIn: "1d" }
   );
 
-  // Strip the hash before returning
   const userObj = user.toJSON();
   delete userObj.passwordHash;
   return { user: userObj, token };
@@ -60,7 +54,7 @@ export const registerUser = async (data) => {
     email: email.toLowerCase(),
     passwordHash,
     phone,
-    isAdmin: false, // Registrations are NEVER admin
+    isAdmin: false,
     street,
     apartment,
     zip,
@@ -72,8 +66,6 @@ export const registerUser = async (data) => {
   delete userObj.passwordHash;
   return userObj;
 };
-
-// --- Write (Admin) ---
 
 export const createUser = async (data) => {
   const { name, email, password, phone, isAdmin, street, apartment, zip, city, country } = data;

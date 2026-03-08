@@ -3,8 +3,6 @@ import OrderItem from "../models/order-item.js";
 import Product from "../models/product.js";
 import AppError from "../utils/AppError.js";
 
-// --- Read ---
-
 export const getAllOrders = async ({ page = 1, limit = 20 } = {}) => {
   const pageNum = Math.max(1, parseInt(page) || 1);
   const limitNum = Math.min(100, parseInt(limit) || 20);
@@ -64,12 +62,9 @@ export const getUserOrders = async (userId) => {
   return orders;
 };
 
-// --- Write ---
-
 export const createOrder = async (orderData, userId) => {
   const { orderItems, shippingAddress1, shippingAddress2, city, zip, country, phone, status } = orderData;
 
-  // Input validation
   if (!Array.isArray(orderItems) || orderItems.length === 0) {
     throw new AppError("orderItems must be a non-empty array", 400);
   }
@@ -77,18 +72,15 @@ export const createOrder = async (orderData, userId) => {
     throw new AppError("Missing required shipping fields: shippingAddress1, city, zip, country, phone", 400);
   }
 
-  // Single DB query to fetch all product prices — avoids the N+1 problem
   const productIds = orderItems.map((item) => item.product);
   const products = await Product.find({ _id: { $in: productIds } }).select("price");
   const priceMap = Object.fromEntries(products.map((p) => [p._id.toString(), p.price]));
 
-  // Calculate total price server-side (never trust client-sent prices)
   const totalPrice = orderItems.reduce((sum, item) => {
     const price = priceMap[item.product] ?? 0;
     return sum + price * item.quantity;
   }, 0);
 
-  // Save all OrderItems in parallel
   const savedItems = await Promise.all(
     orderItems.map((item) =>
       OrderItem.create({ quantity: item.quantity, product: item.product })
@@ -96,7 +88,6 @@ export const createOrder = async (orderData, userId) => {
   );
   const orderItemsIds = savedItems.map((i) => i._id);
 
-  // user always comes from the verified JWT, never from req.body (IDOR fix)
   const order = await Order.create({
     orderItems: orderItemsIds,
     shippingAddress1,

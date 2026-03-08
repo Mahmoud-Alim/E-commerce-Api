@@ -1,7 +1,6 @@
 import winston from "winston";
 import fs from "fs";
 
-// Ensure logs directory exists
 if (!fs.existsSync("logs")) {
   fs.mkdirSync("logs", { recursive: true });
 }
@@ -35,7 +34,6 @@ const logger = winston.createLogger({
   ],
 });
 
-// Add http level for morgan stream
 logger.http = (message) => logger.log("http", message);
 
 export default logger;

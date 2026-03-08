@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * OrderItem mongoose model.
+ * Represents an individual item within an order.
+ */
 const orderItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,

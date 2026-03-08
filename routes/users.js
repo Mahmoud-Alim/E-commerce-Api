@@ -16,16 +16,13 @@ import { registerSchema, loginSchema, updateUserSchema } from "../validations/us
 
 const router = express.Router();
 
-// --- Public routes (no token required, handled by jwt.unless) ---
 router.post("/login", validateRequest(loginSchema), userLogin);
 router.post("/register", validateRequest(registerSchema), registerUser);
 
-// --- Admin-only routes ---
 router.get("/", requireAdmin, getUsers);
 router.post("/", requireAdmin, validateRequest(registerSchema), createUser);
 router.get("/get/count", requireAdmin, getUserCount);
 
-// --- Authenticated user routes ---
 router.get("/:id", validateUserId, getUserById);
 router.put("/:id", validateUserId, validateRequest(updateUserSchema), updateUser);
 router.delete("/:id", requireAdmin, validateUserId, deleteUser);

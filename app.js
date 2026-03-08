@@ -12,35 +12,28 @@ import compression from "compression";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Routes
 import productRoutes from "./routes/product.js";
 import categoriesRoutes from "./routes/categories.js";
 import usersRoutes from "./routes/users.js";
 import ordersRoutes from "./routes/order.js";
 import orderItemsRoutes from "./routes/orderitem.js";
 
-// Middlewares & Utilities
 import authJwt from "./helpers/jwt.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import logger from "./utils/logger.js";
 
-// Load environment variables first — before anything else reads process.env
 dotenv.config();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// =============================================================================
-// CORS
-// =============================================================================
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
   : ["http://localhost:3000"];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, mobile apps)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -54,35 +47,23 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// =============================================================================
-// SECURITY MIDDLEWARES
-// =============================================================================
-app.use(helmet());                // Secure HTTP headers
-app.use(mongoSanitize());         // Strip $ and . from req.body / req.query (NoSQL injection)
-app.use(xss());                   // Sanitize request body against XSS
-app.use(hpp());                   // Prevent HTTP Parameter Pollution
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
 
-// =============================================================================
-// COMPRESSION & BODY PARSERS
-// =============================================================================
 app.use(compression());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// =============================================================================
-// LOGGING
-// =============================================================================
 app.use(
   morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
     stream: { write: (msg) => logger.http(msg.trim()) },
   })
 );
 
-// =============================================================================
-// RATE LIMITING
-// =============================================================================
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
@@ -101,19 +82,10 @@ app.use("/api", globalLimiter);
 app.use("/api/users/login", authLimiter);
 app.use("/api/users/register", authLimiter);
 
-// =============================================================================
-// STATIC FILES
-// =============================================================================
 app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// =============================================================================
-// JWT AUTHENTICATION
-// =============================================================================
 app.use(authJwt());
 
-// =============================================================================
-// HEALTH CHECK
-// =============================================================================
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
@@ -122,18 +94,12 @@ app.get("/health", (req, res) => {
   });
 });
 
-// =============================================================================
-// API ROUTES
-// =============================================================================
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/orderitems", orderItemsRoutes);
 
-// =============================================================================
-// 404 HANDLER
-// =============================================================================
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -141,14 +107,8 @@ app.use((req, res) => {
   });
 });
 
-// =============================================================================
-// GLOBAL ERROR HANDLER (must be last)
-// =============================================================================
 app.use(errorHandler);
 
-// =============================================================================
-// DATABASE CONNECTION
-// =============================================================================
 mongoose
   .connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 5000,
@@ -160,17 +120,11 @@ mongoose
     process.exit(1);
   });
 
-// =============================================================================
-// SERVER
-// =============================================================================
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} [${process.env.NODE_ENV}]`);
 });
 
-// =============================================================================
-// GRACEFUL SHUTDOWN
-// =============================================================================
 const gracefulShutdown = async (signal) => {
   logger.info(`${signal} received — shutting down gracefully...`);
   server.close(async () => {
@@ -179,7 +133,6 @@ const gracefulShutdown = async (signal) => {
     logger.info("MongoDB connection closed.");
     process.exit(0);
   });
-  // Force exit if graceful shutdown takes too long
   setTimeout(() => {
     logger.error("Graceful shutdown timed out — forcing exit.");
     process.exit(1);
@@ -189,9 +142,6 @@ const gracefulShutdown = async (signal) => {
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-// =============================================================================
-// UNHANDLED ERRORS — last safety net
-// =============================================================================
 process.on("unhandledRejection", (reason) => {
   logger.error("UNHANDLED REJECTION:", reason);
   server.close(() => process.exit(1));
