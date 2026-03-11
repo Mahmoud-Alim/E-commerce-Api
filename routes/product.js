@@ -17,8 +17,8 @@ import { productSchema, updateProductSchema } from "../validations/productValida
 const router = express.Router();
 
 router.get("/", getProducts);
-router.get("/get/count", getProductCount);
-router.get("/get/featured/:count?", getFeaturedProducts);
+router.get("/count", getProductCount);
+router.get("/featured/:count?", getFeaturedProducts);
 router.get("/:id", validateProductId, getProductById);
 
 router.post(

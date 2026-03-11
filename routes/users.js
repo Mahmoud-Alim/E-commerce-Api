@@ -21,7 +21,7 @@ router.post("/register", validateRequest(registerSchema), registerUser);
 
 router.get("/", requireAdmin, getUsers);
 router.post("/", requireAdmin, validateRequest(registerSchema), createUser);
-router.get("/get/count", requireAdmin, getUserCount);
+router.get("/count", requireAdmin, getUserCount);
 
 router.get("/:id", validateUserId, getUserById);
 router.put("/:id", validateUserId, validateRequest(updateUserSchema), updateUser);

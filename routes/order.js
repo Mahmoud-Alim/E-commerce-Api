@@ -17,12 +17,12 @@ import { orderSchema, updateOrderStatusSchema } from "../validations/orderValida
 const router = express.Router();
 
 router.get("/", requireAdmin, getOrders);
-router.get("/get/total-sales", requireAdmin, getTotalSales);
-router.get("/get/count", requireAdmin, getOrderCount);
+router.get("/total-sales", requireAdmin, getTotalSales);
+router.get("/count", requireAdmin, getOrderCount);
 router.put("/:id", requireAdmin, validateOrderId, validateRequest(updateOrderStatusSchema), updateOrder);
 router.delete("/:id", requireAdmin, validateOrderId, deleteOrder);
 
-router.get("/get/user-orders/:userId", validateUserId, getUserOrders);
+router.get("/user-orders/:userId", validateUserId, getUserOrders);
 router.get("/:id", validateOrderId, getOrderById);
 router.post("/", validateRequest(orderSchema), createOrder);
 

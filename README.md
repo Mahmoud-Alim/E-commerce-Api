@@ -51,52 +51,52 @@ A production-ready RESTful API for e-commerce applications built with Express.js
 ### Users & Authentication
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| POST | `/api/users/register` | Register new user | Public |
-| POST | `/api/users/login` | Login user | Public |
-| GET | `/api/users/:id` | Get user by ID | Authenticated |
-| PUT | `/api/users/:id` | Update user | Authenticated |
-| GET | `/api/users/` | Get all users | Admin |
-| POST | `/api/users/` | Create user | Admin |
-| GET | `/api/users/get/count` | Get user count | Admin |
-| DELETE | `/api/users/:id` | Delete user | Admin |
+| POST | `/api/v1/users/register` | Register new user | Public |
+| POST | `/api/v1/users/login` | Login user | Public |
+| GET | `/api/v1/users/:id` | Get user by ID | Authenticated |
+| PUT | `/api/v1/users/:id` | Update user | Authenticated |
+| GET | `/api/v1/users/` | Get all users | Admin |
+| POST | `/api/v1/users/` | Create user | Admin |
+| GET | `/api/v1/users/count` | Get user count | Admin |
+| DELETE | `/api/v1/users/:id` | Delete user | Admin |
 
 ### Products
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/api/products` | Get all products | Public |
-| GET | `/api/products/:id` | Get product by ID | Public |
-| GET | `/api/products/get/count` | Get product count | Public |
-| GET | `/api/products/get/featured/:count?` | Get featured products | Public |
-| POST | `/api/products` | Create product (with images) | Admin |
-| PUT | `/api/products/:id` | Update product | Admin |
-| DELETE | `/api/products/:id` | Delete product | Admin |
+| GET | `/api/v1/products` | Get all products | Public |
+| GET | `/api/v1/products/:id` | Get product by ID | Public |
+| GET | `/api/v1/products/count` | Get product count | Public |
+| GET | `/api/v1/products/featured/:count?` | Get featured products | Public |
+| POST | `/api/v1/products` | Create product (with images) | Admin |
+| PUT | `/api/v1/products/:id` | Update product | Admin |
+| DELETE | `/api/v1/products/:id` | Delete product | Admin |
 
 ### Categories
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/api/categories` | Get all categories | Public |
-| GET | `/api/categories/:id` | Get category by ID | Public |
-| POST | `/api/categories` | Create category | Admin |
-| PUT | `/api/categories/:id` | Update category | Admin |
-| DELETE | `/api/categories/:id` | Delete category | Admin |
+| GET | `/api/v1/categories` | Get all categories | Public |
+| GET | `/api/v1/categories/:id` | Get category by ID | Public |
+| POST | `/api/v1/categories` | Create category | Admin |
+| PUT | `/api/v1/categories/:id` | Update category | Admin |
+| DELETE | `/api/v1/categories/:id` | Delete category | Admin |
 
 ### Orders
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/api/orders` | Get all orders | Admin |
-| GET | `/api/orders/:id` | Get order by ID | Authenticated |
-| GET | `/api/orders/get/user-orders/:userId` | Get user's orders | Authenticated |
-| GET | `/api/orders/get/count` | Get order count | Admin |
-| GET | `/api/orders/get/total-sales` | Get total sales | Admin |
-| POST | `/api/orders` | Create order | Authenticated |
-| PUT | `/api/orders/:id` | Update order status | Admin |
-| DELETE | `/api/orders/:id` | Delete order | Admin |
+| GET | `/api/v1/orders` | Get all orders | Admin |
+| GET | `/api/v1/orders/:id` | Get order by ID | Authenticated |
+| GET | `/api/v1/orders/user-orders/:userId` | Get user's orders | Authenticated |
+| GET | `/api/v1/orders/count` | Get order count | Admin |
+| GET | `/api/v1/orders/total-sales` | Get total sales | Admin |
+| POST | `/api/v1/orders` | Create order | Authenticated |
+| PUT | `/api/v1/orders/:id` | Update order status | Admin |
+| DELETE | `/api/v1/orders/:id` | Delete order | Admin |
 
 ### Order Items
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/api/orderitems` | Get all order items | Admin |
-| POST | `/api/orderitems` | Create order item | Admin |
+| GET | `/api/v1/orderitems` | Get all order items | Admin |
+| POST | `/api/v1/orderitems` | Create order item | Admin |
 
 ### System
 | Method | Endpoint | Description | Access |

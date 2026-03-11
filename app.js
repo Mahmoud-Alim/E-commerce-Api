@@ -23,7 +23,8 @@ import errorHandler from "./middlewares/errorHandler.js";
 import logger from "./utils/logger.js";
 
 dotenv.config();
-
+const api = "api";
+const version = "v1";
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,9 +79,9 @@ const authLimiter = rateLimit({
   message: { success: false, message: "Too many auth attempts. Please try again later." },
 });
 
-app.use("/api", globalLimiter);
-app.use("/api/users/login", authLimiter);
-app.use("/api/users/register", authLimiter);
+app.use(`/${api}/${version}`, globalLimiter);
+app.use(`/${api}/${version}/users/login`, authLimiter);
+app.use(`/${api}/${version}/users/register`, authLimiter);
 
 app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
 
@@ -94,11 +95,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use("/api/products", productRoutes);
-app.use("/api/categories", categoriesRoutes);
-app.use("/api/users", usersRoutes);
-app.use("/api/orders", ordersRoutes);
-app.use("/api/orderitems", orderItemsRoutes);
+app.use(`/${api}/${version}/products`, productRoutes);
+app.use(`/${api}/${version}/categories`, categoriesRoutes);
+app.use(`/${api}/${version}/users`, usersRoutes);
+app.use(`/${api}/${version}/orders`, ordersRoutes);
+app.use(`/${api}/${version}/orderitems`, orderItemsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
