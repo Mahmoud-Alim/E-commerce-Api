@@ -38,6 +38,9 @@ export const getOrderCount = asyncHandler(async (req, res) => {
 });
 
 export const getUserOrders = asyncHandler(async (req, res) => {
+  if (!req.auth.isAdmin && req.auth.userId !== req.params.userId) {
+    return res.status(403).json({ success: false, message: "Forbidden: You can only view your own orders." });
+  }
   const orders = await orderService.getUserOrders(req.params.userId);
   return sendSuccess(res, 200, "User orders retrieved successfully", orders);
 });
