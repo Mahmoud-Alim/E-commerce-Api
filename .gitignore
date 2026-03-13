@@ -11,6 +11,7 @@ tests/
 public/
 PRODUCTION_CHECKLIST.txt
 Summary.md
-vitest.config.js
+TESTING_PLAN.md
 .agents
 package-lock.json
+server.log

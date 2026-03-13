@@ -63,11 +63,6 @@ export const createProduct = async (data, files) => {
 };
 
 export const updateProduct = async (id, data, files) => {
-  if (!data.name || !data.price || !data.category) {
-    if (files) await deleteFiles(files);
-    throw new AppError("Missing required fields: name, price, and category are required", 400);
-  }
-
   const existingProduct = await Product.findById(id);
   if (!existingProduct) {
     if (files) await deleteFiles(files);
