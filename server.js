@@ -19,6 +19,9 @@ const server = app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} [${process.env.NODE_ENV}]`);
 });
 
+server.keepAliveTimeout = 5000;
+server.headersTimeout = 10000;
+
 const gracefulShutdown = async (signal) => {
   logger.info(`${signal} received — shutting down gracefully...`);
   server.close(async () => {

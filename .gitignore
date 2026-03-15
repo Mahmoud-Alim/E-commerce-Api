@@ -15,3 +15,6 @@ TESTING_PLAN.md
 .agents
 package-lock.json
 server.log
+load/
+result test/
+package-lock.json

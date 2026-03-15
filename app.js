@@ -23,9 +23,9 @@ import errorHandler from "./middlewares/errorHandler.js";
 import logger from "./utils/logger.js";
 
 dotenv.config();
-const api = "api";
-const version = "v1";
+const apiPath = "/api/v1";
 const app = express();
+app.set("trust proxy", 1);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -68,26 +68,44 @@ const globalLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many requests. Please try again later." },
+  skip: () => process.env.NODE_ENV === "development",
+  message: {
+    success: false,
+    status: 429,
+    message: "Too many requests. Please try again later.",
+  },
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
+  windowMs: 60 * 60 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many auth attempts. Please try again later." },
+  skip: () => process.env.NODE_ENV === "development",
+  message: {
+    success: false,
+    status: 429,
+    message: "Too many auth attempts. Please try again later.",
+  },
 });
 
-app.use(`/${api}/${version}`, globalLimiter);
-app.use(`/${api}/${version}/users/login`, authLimiter);
-app.use(`/${api}/${version}/users/register`, authLimiter);
+app.use(`${apiPath}`, globalLimiter);
+app.use(`${apiPath}/users/login`, authLimiter);
+app.use(`${apiPath}/users/register`, authLimiter);
 
 app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get(`${apiPath}/home`, (req, res) => {
+  res.status(200).json({
+    message: "hello",
+    success: true,
+  });
+});
 
 app.use(authJwt());
 
-app.get("/health", (req, res) => {
+app.get(`${apiPath}/health`, (req, res) => {
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -95,11 +113,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use(`/${api}/${version}/products`, productRoutes);
-app.use(`/${api}/${version}/categories`, categoriesRoutes);
-app.use(`/${api}/${version}/users`, usersRoutes);
-app.use(`/${api}/${version}/orders`, ordersRoutes);
-app.use(`/${api}/${version}/orderitems`, orderItemsRoutes);
+app.use(`${apiPath}/products`, productRoutes);
+app.use(`${apiPath}/categories`, categoriesRoutes);
+app.use(`${apiPath}/users`, usersRoutes);
+app.use(`${apiPath}/orders`, ordersRoutes);
+app.use(`${apiPath}/orderitems`, orderItemsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
