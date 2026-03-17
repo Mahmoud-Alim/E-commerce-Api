@@ -29,8 +29,17 @@ export const deleteUser = asyncHandler(async (req, res) => {
 
 export const userLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const result = await userService.loginUser(email, password);
-  return sendSuccess(res, 200, "User logged in successfully", result);
+  const { user, token } = await userService.loginUser(email, password);
+
+  // Set JWT in HttpOnly, Secure cookie
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day in ms
+  });
+
+  return sendSuccess(res, 200, "User logged in successfully", { user });
 });
 
 export const registerUser = asyncHandler(async (req, res) => {

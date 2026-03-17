@@ -11,15 +11,18 @@ function authJwt() {
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
     requestProperty: "auth",
+    getToken: (req) => req.cookies?.token || null,
   }).unless({
     path: [
       "/api/v1/users/login",
       "/api/v1/users/register",
+      "/api/v1/csrf-token",
       { url: /\/api\/v1\/products(.*)/, methods: ["GET", "OPTIONS"] },
       { url: /\/api\/v1\/categories(.*)/, methods: ["GET", "OPTIONS"] },
       "/health",
     ],
   });
+}
 }
 
 export default authJwt;

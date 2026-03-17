@@ -41,6 +41,11 @@ const errorHandler = (err, req, res, next) => {
     return sendError(res, 401, "Unauthorized", "Invalid or missing authentication token.");
   }
 
+  // Handle CSRF Errors
+  if (err.code === "EBADCSRFTOKEN" || err.message === "invalid csrf token") {
+    return sendError(res, 403, "Forbidden", "Invalid or missing CSRF token.");
+  }
+
   if (err.isOperational) {
     return sendError(res, err.statusCode, err.message);
   }

@@ -11,6 +11,9 @@ import hpp from "hpp";
 import compression from "compression";
 import path from "path";
 import { fileURLToPath } from "url";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import csrf from "tiny-csrf";
 
 import productRoutes from "./routes/product.js";
 import categoriesRoutes from "./routes/categories.js";
@@ -56,6 +59,46 @@ app.use(hpp());
 app.use(compression());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+app.use(cookieParser(process.env.COOKIE_PARSER_SECRET || "default-cookie-secret"));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "default-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "strict",
+    },
+  })
+);
+
+const csrfSecret = process.env.CSRF_SECRET || "csrf-secret-change-in-production-long-secret";
+
+// Middleware to ensure CSRF token is only accepted from the header
+app.use((req, res, next) => {
+  // Clear any CSRF token in body or query to force header-only verification
+  if (req.body && req.body._csrf) delete req.body._csrf;
+  if (req.query && req.query._csrf) delete req.query._csrf;
+  
+  // If the header exists, move it to req.body._csrf for tiny-csrf to find it
+  if (req.headers["x-csrf-token"]) {
+    req.body = req.body || {};
+    req.body._csrf = req.headers["x-csrf-token"];
+  }
+  next();
+});
+
+app.use(csrf(csrfSecret));
+
+// CSRF Token endpoint
+app.get(`${apiPath}/csrf-token`, (req, res) => {
+  res.status(200).json({
+    success: true,
+    csrfToken: req.csrfToken(),
+  });
+});
 
 app.use(
   morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
